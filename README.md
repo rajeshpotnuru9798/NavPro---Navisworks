@@ -35,3 +35,8 @@ See [Build and share](#build-and-share) in the full documentation below for prer
 
 ---
 
+
+## Dashboard sample
+
+View the [sample dashboard page and image](Docs/Showcase/Dashboard/README.md). Sample values are illustrative.
+
