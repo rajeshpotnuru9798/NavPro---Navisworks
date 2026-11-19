@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ApplicationPackage SchemaVersion="1.0" AutodeskProduct="Navisworks" ProductType="Application" Name="NavPro" Description="SetCreator, Clash Matrix, Clash Review and Colorizer tools" AppVersion="1.0.27" Author="NavPro" AppNameSpace="NavPro" ProductCode="{C08F9C76-708E-4F2C-B690-47F847D87F0A}" UpgradeCode="{A33A058E-7CE5-4B71-94B1-7348AE521AFF}" HelpFile="./Contents/README.md" Icon="./Contents/v21/Assets/SearchSetCreater32.png">
+  <Components>
+    <RuntimeRequirements OS="Win64" Platform="NAVMAN" SeriesMin="Nw21" SeriesMax="Nw21" />
+    <ComponentEntry AppName="NavPro" AppType="ManagedPlugin" Version="1.0.27" ModuleName="./Contents/v21/NavPro.dll" AppDescription="NavPro - SetCreator and Clash Review tools" />
+    <RuntimeRequirements OS="Win64" Platform="NAVMAN" SeriesMin="Nw22" SeriesMax="Nw22" />
+    <ComponentEntry AppName="NavPro" AppType="ManagedPlugin" Version="1.0.27" ModuleName="./Contents/v22/NavPro.dll" AppDescription="NavPro - SetCreator and Clash Review tools" />
+    <RuntimeRequirements OS="Win64" Platform="NAVMAN" SeriesMin="Nw23" SeriesMax="Nw23" />
+    <ComponentEntry AppName="NavPro" AppType="ManagedPlugin" Version="1.0.27" ModuleName="./Contents/v23/NavPro.dll" AppDescription="NavPro - SetCreator and Clash Review tools" />
+  </Components>
+</ApplicationPackage>

@@ -1,0 +1,19 @@
+{
+  "folders": [
+    { "name": "NavPro", "path": "." }
+  ],
+  "settings": {
+    "window.title": "${dirty}${activeEditorShort}${separator}NavPro${separator}${appName}",
+    "files.exclude": {
+      "**/bin": true,
+      "**/obj": true,
+      "**/.vs": true
+    },
+    "search.exclude": {
+      "**/bin/**": true,
+      "**/obj/**": true,
+      "dist/**": true
+    },
+    "terminal.integrated.cwd": "${workspaceFolder:NavPro}"
+  }
+}

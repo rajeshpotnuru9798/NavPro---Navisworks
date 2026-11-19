@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <PlatformTarget>x64</PlatformTarget>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>NavPro</AssemblyName>
+    <RootNamespace>NavPro</RootNamespace>
+    <Version>1.0.27</Version>
+    <NavisworksInstallDir Condition="'$(NavisworksInstallDir)' == '' and '$(Configuration)' == 'Release2026'">$(MSBuildProjectDirectory)\Manage 2026 DLLs</NavisworksInstallDir>
+    <NavisworksInstallDir Condition="'$(NavisworksInstallDir)' == '' and '$(Configuration)' == 'Release2025'">$(MSBuildProjectDirectory)\Manage 2025 DLLs</NavisworksInstallDir>
+    <NavisworksInstallDir Condition="'$(NavisworksInstallDir)' == ''">C:\Program Files\Autodesk\Navisworks Manage 2024</NavisworksInstallDir>
+    <NavisworksApiAssemblyVersion Condition="'$(NavisworksApiAssemblyVersion)' == '' and '$(Configuration)' == 'Release2026'">23.0.0.0</NavisworksApiAssemblyVersion>
+    <NavisworksApiAssemblyVersion Condition="'$(NavisworksApiAssemblyVersion)' == '' and '$(Configuration)' == 'Release2025'">22.0.0.0</NavisworksApiAssemblyVersion>
+    <NavisworksApiAssemblyVersion Condition="'$(NavisworksApiAssemblyVersion)' == ''">21.0.0.0</NavisworksApiAssemblyVersion>
+    <DefineConstants Condition="'$(Configuration)' == 'Release2026'">$(DefineConstants);NAVISWORKS2026</DefineConstants>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="$(NavisworksInstallDir)\Autodesk.Navisworks.Api.dll"><Private>false</Private></Reference>
+    <Reference Include="$(NavisworksInstallDir)\Autodesk.Navisworks.Clash.dll"><Private>false</Private></Reference>
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.Web.Extensions" />
+    <Compile Remove="Tests\**\*.cs" />
+    <EmbeddedResource Include="Assets\ContactInfo16.png" LogicalName="NavPro.Assets.ContactInfo16.png" />
+    <EmbeddedResource Include="Assets\ContactInfo32.png" LogicalName="NavPro.Assets.ContactInfo32.png" />
+    <EmbeddedResource Include="Assets\NavProDashboardLogo.png" LogicalName="NavPro.Assets.NavProDashboardLogo.png" />
+    
+  </ItemGroup>
+  <Target Name="CheckNavisworks" BeforeTargets="ResolveReferences">
+    <Error Condition="!Exists('$(NavisworksInstallDir)\Autodesk.Navisworks.Api.dll')" Text="Navisworks API not found. Set NavisworksInstallDir to the folder containing Autodesk.Navisworks.Api.dll and Autodesk.Navisworks.Clash.dll." />
+    <Error Condition="!Exists('$(NavisworksInstallDir)\Autodesk.Navisworks.Clash.dll')" Text="Navisworks Clash API not found. Set NavisworksInstallDir to the matching release's API folder." />
+    <GetAssemblyIdentity AssemblyFiles="$(NavisworksInstallDir)\Autodesk.Navisworks.Api.dll;$(NavisworksInstallDir)\Autodesk.Navisworks.Clash.dll">
+      <Output TaskParameter="Assemblies" ItemName="_NavisworksApiIdentity" />
+    </GetAssemblyIdentity>
+    <Error Condition="'%(_NavisworksApiIdentity.Version)' != '$(NavisworksApiAssemblyVersion)'" Text="The selected Navisworks API assemblies do not match NavisworksApiAssemblyVersion=$(NavisworksApiAssemblyVersion)." />
+  </Target>
+</Project>
