@@ -11,6 +11,7 @@ internal static class Program
     [STAThread]
     private static void Main()
     {
+        NavPro.Frontend.Ui.WindowPreferences.StorageRoot = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "NavPro-PolicyTests-" + Guid.NewGuid().ToString("N"));
         ToleranceTests.Run();
         var p = NamingPolicy.Plan(new[] { "001", "002" }, new string[0]);
         Assert(p[0].Name == "001" && p.All(v => v.Error == null), "Model numbers used directly as set names");

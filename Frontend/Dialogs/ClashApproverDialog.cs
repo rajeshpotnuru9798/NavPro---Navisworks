@@ -120,6 +120,7 @@ namespace NavPro.Frontend.Dialogs
             footer.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100)); footer.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize)); footer.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
             footer.Controls.Add(status, 0, 0); footer.Controls.Add(update, 1, 0); footer.Controls.Add(close, 2, 0);
             root.Controls.Add(footer, 0, 4);
+            ResizableLayout.Rows(root, 2, 3, 2, 0.7, "Clash tests and status preview");
             Controls.Add(root);
         }
 

@@ -66,6 +66,7 @@ namespace NavPro.Backend.Services
             if (selected.Count != ids.Count) throw new InvalidOperationException("The clash test list changed since preview. Refresh and preview again.");
 
             var result = new ClashStatusUpdateResult();
+            var journal = new List<Tuple<string, string>>();
             using (var transaction = document.BeginTransaction("NavPro Status Updater"))
             {
                 foreach (var test in selected)
@@ -80,6 +81,7 @@ namespace NavPro.Backend.Services
                         { result.Skipped++; continue; }
 
                         var testsData = GetClash().TestsData;
+                        journal.Add(Tuple.Create(test.DisplayName + " / " + ((SavedItem)clashResult).DisplayName, status.ToString()));
 #if NAVISWORKS2026
                         string currentUserName = string.IsNullOrWhiteSpace(updatedBy) ? Environment.UserName : updatedBy.Trim();
                         var currentUser = new Assignee(currentUserName);
@@ -103,6 +105,7 @@ namespace NavPro.Backend.Services
                 }
                 transaction.Commit();
             }
+            foreach (var entry in journal) CoordinationChangeLog.Record(document, "Status Updater", entry.Item1, entry.Item2, targetStatus.ToString());
             return result;
         }
 

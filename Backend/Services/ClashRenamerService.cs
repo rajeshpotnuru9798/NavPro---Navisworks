@@ -9,7 +9,12 @@ using NavPro.Backend.Models;
 namespace NavPro.Backend.Services
 {
     /// <summary>Reads and renames Clash Detective tests in Manage 2024.</summary>
-    public sealed class ClashRenamerService
+    public interface IClashRenamerService
+    {
+        List<ClashRenameItem> ReadTests();
+        ClashRenameResult Apply(IEnumerable<ClashRenameItem> requested);
+    }
+    public sealed class ClashRenamerService : IClashRenamerService
     {
         private readonly Document document;
         private readonly int uiThread = Thread.CurrentThread.ManagedThreadId;
@@ -38,6 +43,8 @@ namespace NavPro.Backend.Services
             var byId = current.ToDictionary(test => test.Guid.ToString("D"), StringComparer.OrdinalIgnoreCase);
             if (updates.Any(item => !byId.ContainsKey(item.Id)))
                 throw new InvalidOperationException("The clash test list changed since it was loaded. Refresh and review the names again.");
+            if (updates.Any(item => !string.Equals(byId[item.Id].DisplayName, item.CurrentName, StringComparison.Ordinal)))
+                throw new InvalidOperationException("A selected test name changed since it was loaded. Refresh and review the names again.");
 
             var targetNames = current.ToDictionary(test => test.Guid.ToString("D"), test => test.DisplayName, StringComparer.OrdinalIgnoreCase);
             foreach (var item in updates) targetNames[item.Id] = item.NewName.Trim();
@@ -62,6 +69,7 @@ namespace NavPro.Backend.Services
             var verified = Flatten(GetClash().TestsData.Tests).OfType<ClashTest>().ToDictionary(test => test.Guid.ToString("D"), StringComparer.OrdinalIgnoreCase);
             if (changed.Any(item => !verified.TryGetValue(item.Id, out var test) || !string.Equals(test.DisplayName, item.NewName.Trim(), StringComparison.Ordinal)))
                 throw new InvalidOperationException("Navisworks did not confirm every requested test name. Refresh the list to see the current names.");
+            foreach (var item in changed) CoordinationChangeLog.Record(document, "Renamer", item.Id, item.CurrentName, item.NewName.Trim());
             return result;
         }
 

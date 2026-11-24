@@ -104,6 +104,7 @@ namespace NavPro.Frontend.Dialogs
             footer.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100)); footer.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize)); footer.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
             footer.Controls.Add(status, 0, 0); footer.Controls.Add(importButton, 1, 0); footer.Controls.Add(close, 2, 0); root.Controls.Add(footer, 0, 3);
             Controls.Add(root);
+            ResizableLayout.Rows(root, 1, 2, 1, 0.3, "Import settings and results");
         }
 
         private void BrowseFile()
@@ -146,6 +147,9 @@ namespace NavPro.Frontend.Dialogs
 
         private void PreviewChanges()
         {
+            previewButton.Enabled = false; importButton.Enabled = false; Cursor = Cursors.WaitCursor;
+            status.Text = "Matching report rows to native results. This synchronous operation may pause the window.";
+            status.Refresh();
             try
             {
                 if (report == null) throw new InvalidOperationException("Load a dashboard XML or CSV report first.");
@@ -159,6 +163,7 @@ namespace NavPro.Frontend.Dialogs
                 status.Text = lastPreview.ReadyCount == 0 ? "No unique, changed status matches are ready to import." : "Review the matching results before importing.";
             }
             catch (Exception ex) { lastPreview = null; importButton.Enabled = false; status.Text = "Preview failed: " + ex.Message; }
+            finally { Cursor = Cursors.Default; previewButton.Enabled = report != null && statuses.CheckedItems.Count > 0; }
         }
 
         private void ApplyChanges()

@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net48</TargetFramework><PlatformTarget>x64</PlatformTarget><LangVersion>latest</LangVersion></PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../Backend/Models/VerticalClearanceModels.cs" Link="VerticalClearanceModels.cs" />
+    <Compile Include="../../Frontend/Dialogs/VerticalClearanceDialog.cs" Link="VerticalClearanceDialog.cs" />
+    <Compile Include="../../Backend/Core/VerticalCoverGeometry.cs" Link="VerticalCoverGeometry.cs" />
+    <Compile Include="../../Backend/Services/ClashImageCapture.cs" Link="ClashImageCapture.cs" />
+    <Reference Include="System.Windows.Forms" /><Reference Include="System.Drawing" /><Reference Include="System.Net.Http" /><Reference Include="System.Web.Extensions" /><Reference Include="System.Xml.Linq" />
+    <Compile Include="../../Backend/Models/SmartReviewModels.cs" Link="SmartReviewModels.cs" />
+    <Compile Include="../../Backend/Models/ClashMatrixModels.cs" Link="ClashMatrixModels.cs" />
+    <Compile Include="../../Backend/Models/ClashRenameModels.cs" Link="ClashRenameModels.cs" />
+    <Compile Include="../../Backend/Core/RenamePatterns.cs" Link="RenamePatterns.cs" />
+    <Compile Include="../../Backend/Core/ClashTestNameParser.cs" Link="ClashTestNameParser.cs" />
+    <Compile Include="../../Backend/Services/ClashRenamerService.cs" Link="ClashRenamerService.cs" />
+    <Compile Include="../../Frontend/Dialogs/ClashRenamerDialog.cs" Link="ClashRenamerDialog.cs" />
+    <Compile Include="../../Frontend/Dialogs/ContactInfoDialog.cs" Link="ContactInfoDialog.cs" />
+    <Compile Include="../../Classes/NavProSupportInfo.cs" Link="NavProSupportInfo.cs" />
+    <Compile Include="../../Classes/NavProIdentity.cs" Link="NavProIdentity.cs" />
+    <Compile Include="../../Backend/Core/SmartGroupingPlanner.cs" Link="SmartGroupingPlanner.cs" />
+    <Compile Include="../../Backend/Core/AlignmentGeometry.cs" Link="AlignmentGeometry.cs" />
+    <Compile Include="../../Backend/Core/ReviewCsv.cs" Link="ReviewCsv.cs" />
+    <Compile Include="../../Backend/Services/ClashReviewSession.cs" Link="ClashReviewSession.cs" />
+    <Compile Include="../../Backend/Services/AlignmentDataReader.cs" Link="AlignmentDataReader.cs" />
+    <Compile Include="../../Backend/Services/ClashDescriptionGenerator.cs" Link="ClashDescriptionGenerator.cs" />
+    <Compile Include="../../Backend/Services/CoordinationChangeLog.cs" Link="CoordinationChangeLog.cs" />
+    <Compile Include="../../Backend/Services/SpatialCheckService.cs" Link="SpatialCheckService.cs" />
+    <Compile Include="../../Frontend/Ui/DialogTheme.cs" Link="DialogTheme.cs" />
+    <Compile Include="../../Frontend/Ui/WindowPreferences.cs" Link="WindowPreferences.cs" />
+    <Compile Include="../../Frontend/Ui/ReviewToolForm.cs" Link="ReviewToolForm.cs" />
+    <Compile Include="../../Frontend/Ui/ResizableLayout.cs" Link="ResizableLayout.cs" />
+    <Compile Include="../../Frontend/Dialogs/SmartClashGrouperDialog.cs" Link="SmartClashGrouperDialog.cs" />
+    <Compile Include="../../Frontend/Dialogs/ChainageClashLocatorDialog.cs" Link="ChainageClashLocatorDialog.cs" />
+    <Compile Include="../../Frontend/Dialogs/ClashDescriptionDialog.cs" Link="ClashDescriptionDialog.cs" />
+    <Compile Include="../../Frontend/Dialogs/SpatialCheckDialog.cs" Link="SpatialCheckDialog.cs" />
+    <Compile Include="../../Frontend/Dialogs/CoordinationChangeLogDialog.cs" Link="CoordinationChangeLogDialog.cs" />
+  <Compile Include="../../Backend/Services/ReviewPreferences.cs" Link="ReviewPreferences.cs" /><Compile Include="../../Backend/Core/ProjectDescriptionTemplate.cs" Link="ProjectDescriptionTemplate.cs" /><Reference Include="System.IO.Compression" /><Compile Include="../../Backend/Services/ApprovedRuleTable.cs" Link="ApprovedRuleTable.cs" /></ItemGroup>
+</Project>

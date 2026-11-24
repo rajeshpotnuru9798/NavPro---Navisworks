@@ -5,3 +5,20 @@ Tests/bin/
 Tests/obj/
 dist/
 *.user
+**/bin/
+**/obj/
+Manage * DLLs/
+Tests/Artifacts/
+Docs/IconReview/Proposed/
+*.nwf
+*.nwc
+*.nwd
+*.dwg
+*.rvt
+*.dll
+*.pdb
+*.zip
+*.log
+node_modules/
+.env
+.env.*

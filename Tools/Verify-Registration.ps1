@@ -79,10 +79,25 @@ try {
     if (!$ribbon.SelectSingleNode("//*[local-name()='NWRibbonButton' and @Id='ContactInfo' and @Text='Contact Info']")) { throw 'Ribbon XAML Contact Info button mismatch' }
     if (!$ribbon.SelectSingleNode("//*[local-name()='RibbonPanelSource' and @Title='Export']/*[local-name()='NWRibbonButton' and @Id='ClashDashboard' and @Text='Clash Dashboard']")) { throw 'Clash Dashboard is not in the Export panel' }
     if (!$ribbon.SelectSingleNode("//*[local-name()='RibbonPanelSource' and @Title='Clash Review']/*[local-name()='NWRibbonButton' and @Id='ClashTolerance' and @Text='Tolerance Updater']")) { throw 'Tolerance Updater ribbon button mismatch' }
+    foreach ($id in @('SmartClashGrouper','ChainageClashLocator','AiClashDescription','UtilitySeparationChecker','MaintenanceClearanceReview','CoordinationChangeLog','VerticalClearanceChecker')) {
+        $attribute = $command | Where-Object { $_.ConstructorArguments[0].Value -eq $id }
+        if (!$attribute) { throw "Missing review command metadata: $id" }
+        $panel = if ($id -eq 'SmartClashGrouper') { 'Clash Review' } else { 'Smart Review' }
+        $display = ($attribute.NamedArguments | Where-Object { $_.MemberName -eq 'DisplayName' }).TypedValue.Value
+        $button = $ribbon.SelectSingleNode("//*[local-name()='RibbonPanelSource' and @Title='$panel']//*[local-name()='NWRibbonButton' and @Id='$id']")
+        if (!$button -or $button.Text -ne $display) { throw "Review command metadata/placement/label mismatch: $id" }
+    }
+    foreach ($control in $ribbon.SelectNodes("//*[local-name()='NWRibbonButton' or local-name()='NWRibbonSplitButton']")) {
+        $registered = @($command | Where-Object { $_.ConstructorArguments[0].Value -eq $control.Id })
+        if ($registered.Count -ne 1) { throw "Ribbon control must have exactly one registered command: $($control.Id)" }
+    }
     $reference = $plugin.GetReferencedAssemblies() | Where-Object { $_.Name -eq 'Autodesk.Navisworks.Api' }
     $clashReference = $plugin.GetReferencedAssemblies() | Where-Object { $_.Name -eq 'Autodesk.Navisworks.Clash' }
     if (!$reference -or $reference.Version.Major -ne $apiMajor) { throw 'Plug-in API reference does not match the supplied Navisworks API.' }
     if (!$clashReference -or $clashReference.Version.Major -ne $apiMajor) { throw 'Plug-in Clash API reference does not match the supplied Navisworks API.' }
+    $bridgeReference = $plugin.GetReferencedAssemblies() | Where-Object { $_.Name -eq 'Autodesk.Navisworks.ComApi' }
+    if ($bridgeReference -and $bridgeReference.Version.Major -ne $apiMajor) { throw 'Plug-in COM geometry bridge does not match the supplied Navisworks API.' }
+    if ($apiMajor -eq 23 -and !$bridgeReference) { throw 'The 2026 build must include its supplied public COM geometry bridge.' }
     Write-Output "PASS metadata registration: $($type.FullName) derives from CommandHandlerPlugin; SearchSetCreater, ClashMatrix, ClashApprover (Status Updater), ClashStatusImport, ClashRefreshModels, ClashColorizer, ClashRenamer, ClashTolerance, ContactInfo and ClashDashboard command IDs match XAML; API=$($reference.Version), Clash=$($clashReference.Version)"
     Write-Output 'Host discovery, icon rendering and native searching are NOT verified by this check.'
 } finally { [AppDomain]::CurrentDomain.remove_ReflectionOnlyAssemblyResolve($resolve) }

@@ -16,7 +16,7 @@ namespace NavPro.Frontend.Dialogs
         private readonly CheckedListBox statuses = new CheckedListBox { Width = 390, Height = 112, CheckOnClick = true };
         private readonly RadioButton all = new RadioButton { Text = "All kept results", AutoSize = true, Checked = true };
         private readonly RadioButton filtered = new RadioButton { Text = "Only results in selected statuses", AutoSize = true };
-        private readonly CheckBox images = new CheckBox { Text = "Include saved viewpoint images in the HTML (slow; one render per clash)", AutoSize = true, Checked = true };
+        private readonly CheckBox images = new CheckBox { Text = "Request an image for every included clash (slow; native rendering can fail)", AutoSize = true, Checked = true };
         private readonly CheckBox tabular = new CheckBox { Text = "Also create HTML (tabular) companion", AutoSize = true };
         private readonly CheckBox excel = new CheckBox { Text = "Also create Excel workbook (.xlsx)", AutoSize = true };
         private readonly CheckBox xml = new CheckBox { Text = "Also create XML companion", AutoSize = true };
@@ -46,6 +46,7 @@ namespace NavPro.Frontend.Dialogs
             var cancel = new Button { Text = "Cancel", DialogResult = DialogResult.Cancel, AutoSize = true };
             buttons.Controls.Add(ok); buttons.Controls.Add(cancel); layout.Controls.Add(buttons, 0, 7); layout.SetColumnSpan(buttons, 2);
             AcceptButton = ok; CancelButton = cancel;
+            NavPro.Frontend.Ui.WindowPreferences.Attach(this);
             FormClosing += (s, e) => { if (DialogResult == DialogResult.OK) BuildOptions(); };
         }
 

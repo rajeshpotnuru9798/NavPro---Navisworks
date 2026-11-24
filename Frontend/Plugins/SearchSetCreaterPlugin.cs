@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Windows.Forms;
 using Autodesk.Navisworks.Api.Plugins;
 using NavPro.Frontend.Dialogs;
@@ -22,8 +23,20 @@ namespace NavPro.Frontend.Plugins
     [Command(ClashRenamerCommandId, DisplayName = NavProIdentity.ClashRenamerDisplayName, Icon = "Assets/ClashRenamer16.png", LargeIcon = "Assets/ClashRenamer32.png", ToolTip = "Find, bulk edit and prefix Clash Detective test names.", CallCanExecute = CallCanExecute.Always)]
     [Command(ContactInfoCommandId, DisplayName = NavProIdentity.ContactInfoDisplayName, Icon = "Assets/ContactInfo16.png", LargeIcon = "Assets/ContactInfo32.png", ToolTip = "View NavPro technical support contact details.", CallCanExecute = CallCanExecute.Always)]
     [Command(ClashDashboardCommandId, DisplayName = NavProIdentity.ClashDashboardDisplayName, Icon = "Assets/ClashDashboard16.png", LargeIcon = "Assets/ClashDashboard32.png", ToolTip = "Export saved Clash Detective tests and results to an interactive dashboard.", CallCanExecute = CallCanExecute.Always)]
+    [Command(NavProIdentity.SmartClashGrouperName, DisplayName = NavProIdentity.SmartClashGrouperDisplayName, Icon = "Assets/SmartClashGrouper16.png", LargeIcon = "Assets/SmartClashGrouper32.png", ToolTip = "Open SmartClashGrouper with preview and explicit review controls.", CallCanExecute = CallCanExecute.Always)]
+    [Command(NavProIdentity.ChainageClashLocatorName, DisplayName = NavProIdentity.ChainageClashLocatorDisplayName, Icon = "Assets/ChainageClashLocator16.png", LargeIcon = "Assets/ChainageClashLocator32.png", ToolTip = "Open ChainageClashLocator with preview and explicit review controls.", CallCanExecute = CallCanExecute.Always)]
+    [Command(NavProIdentity.AiClashDescriptionName, DisplayName = NavProIdentity.AiClashDescriptionDisplayName, Icon = "Assets/AiClashDescription16.png", LargeIcon = "Assets/AiClashDescription32.png", ToolTip = "Open AiClashDescription with preview and explicit review controls.", CallCanExecute = CallCanExecute.Always)]
+    [Command(NavProIdentity.UtilitySeparationCheckerName, DisplayName = NavProIdentity.UtilitySeparationCheckerDisplayName, Icon = "Assets/UtilitySeparationChecker16.png", LargeIcon = "Assets/UtilitySeparationChecker32.png", ToolTip = "Open UtilitySeparationChecker with preview and explicit review controls.", CallCanExecute = CallCanExecute.Always)]
+    [Command(NavProIdentity.MaintenanceClearanceReviewName, DisplayName = NavProIdentity.MaintenanceClearanceReviewDisplayName, Icon = "Assets/MaintenanceClearanceReview16.png", LargeIcon = "Assets/MaintenanceClearanceReview32.png", ToolTip = "Open MaintenanceClearanceReview with preview and explicit review controls.", CallCanExecute = CallCanExecute.Always)]
+    [Command(NavProIdentity.CoordinationChangeLogName, DisplayName = NavProIdentity.CoordinationChangeLogDisplayName, Icon = "Assets/CoordinationChangeLog16.png", LargeIcon = "Assets/CoordinationChangeLog32.png", ToolTip = "Open CoordinationChangeLog with preview and explicit review controls.", CallCanExecute = CallCanExecute.Always)]
+    [Command(NavProIdentity.SmartReviewMenuName, DisplayName = NavProIdentity.SmartReviewMenuDisplayName, Icon = "Assets/SmartReviewMenu16.png", LargeIcon = "Assets/SmartReviewMenu32.png", ToolTip = "Choose a Smart Review tool.", CallCanExecute = CallCanExecute.Always)]
+    [Command(NavProIdentity.VerticalClearanceCheckerName, DisplayName = NavProIdentity.VerticalClearanceCheckerDisplayName, Icon = "Assets/VerticalClearanceChecker16.png", LargeIcon = "Assets/VerticalClearanceChecker32.png", ToolTip = "Check vertical cover from a ground/top surface to the outer pipe mesh at matching XY.", CallCanExecute = CallCanExecute.Always)]
     public sealed class SearchSetCreaterPlugin : CommandHandlerPlugin
     {
+        private static readonly HashSet<string> ReviewToolIds = new HashSet<string>(StringComparer.Ordinal) {
+            NavProIdentity.SmartClashGrouperName, NavProIdentity.ChainageClashLocatorName, NavProIdentity.AiClashDescriptionName,
+            NavProIdentity.UtilitySeparationCheckerName, NavProIdentity.MaintenanceClearanceReviewName, NavProIdentity.CoordinationChangeLogName, NavProIdentity.VerticalClearanceCheckerName };
+        private static readonly Dictionary<string, Form> ReviewWindows = new Dictionary<string, Form>(StringComparer.Ordinal);
         private const string RibbonTabId = "NavProTab";
         private const string CommandId = NavProIdentity.SearchSetCreaterName;
         private const string ClashMatrixCommandId = NavProIdentity.ClashMatrixName;
@@ -46,10 +59,12 @@ namespace NavPro.Frontend.Plugins
 
         public override CommandState CanExecuteCommand(string name)
         {
+            if (string.Equals(name, NavProIdentity.SmartReviewMenuName, StringComparison.Ordinal))
+                return new CommandState { IsEnabled = true, IsVisible = true, IsChecked = false };
             var state = new CommandState
             {
-                IsEnabled = string.Equals(name, CommandId, StringComparison.Ordinal) || string.Equals(name, ClashMatrixCommandId, StringComparison.Ordinal) || string.Equals(name, ClashApproverCommandId, StringComparison.Ordinal) || string.Equals(name, ClashStatusImportCommandId, StringComparison.Ordinal) || string.Equals(name, ClashRefreshModelsCommandId, StringComparison.Ordinal) || string.Equals(name, ClashColorizerCommandId, StringComparison.Ordinal) || string.Equals(name, ClashRenamerCommandId, StringComparison.Ordinal) || string.Equals(name, ClashToleranceCommandId, StringComparison.Ordinal) || string.Equals(name, ContactInfoCommandId, StringComparison.Ordinal) || string.Equals(name, ClashDashboardCommandId, StringComparison.Ordinal),
-                IsVisible = string.Equals(name, CommandId, StringComparison.Ordinal) || string.Equals(name, ClashMatrixCommandId, StringComparison.Ordinal) || string.Equals(name, ClashApproverCommandId, StringComparison.Ordinal) || string.Equals(name, ClashStatusImportCommandId, StringComparison.Ordinal) || string.Equals(name, ClashRefreshModelsCommandId, StringComparison.Ordinal) || string.Equals(name, ClashColorizerCommandId, StringComparison.Ordinal) || string.Equals(name, ClashRenamerCommandId, StringComparison.Ordinal) || string.Equals(name, ClashToleranceCommandId, StringComparison.Ordinal) || string.Equals(name, ContactInfoCommandId, StringComparison.Ordinal) || string.Equals(name, ClashDashboardCommandId, StringComparison.Ordinal),
+                IsEnabled = ReviewToolIds.Contains(name) || string.Equals(name, CommandId, StringComparison.Ordinal) || string.Equals(name, ClashMatrixCommandId, StringComparison.Ordinal) || string.Equals(name, ClashApproverCommandId, StringComparison.Ordinal) || string.Equals(name, ClashStatusImportCommandId, StringComparison.Ordinal) || string.Equals(name, ClashRefreshModelsCommandId, StringComparison.Ordinal) || string.Equals(name, ClashColorizerCommandId, StringComparison.Ordinal) || string.Equals(name, ClashRenamerCommandId, StringComparison.Ordinal) || string.Equals(name, ClashToleranceCommandId, StringComparison.Ordinal) || string.Equals(name, ContactInfoCommandId, StringComparison.Ordinal) || string.Equals(name, ClashDashboardCommandId, StringComparison.Ordinal),
+                IsVisible = ReviewToolIds.Contains(name) || string.Equals(name, CommandId, StringComparison.Ordinal) || string.Equals(name, ClashMatrixCommandId, StringComparison.Ordinal) || string.Equals(name, ClashApproverCommandId, StringComparison.Ordinal) || string.Equals(name, ClashStatusImportCommandId, StringComparison.Ordinal) || string.Equals(name, ClashRefreshModelsCommandId, StringComparison.Ordinal) || string.Equals(name, ClashColorizerCommandId, StringComparison.Ordinal) || string.Equals(name, ClashRenamerCommandId, StringComparison.Ordinal) || string.Equals(name, ClashToleranceCommandId, StringComparison.Ordinal) || string.Equals(name, ContactInfoCommandId, StringComparison.Ordinal) || string.Equals(name, ClashDashboardCommandId, StringComparison.Ordinal),
                 IsChecked = false
             };
             return state;
@@ -57,6 +72,9 @@ namespace NavPro.Frontend.Plugins
 
         public override int ExecuteCommand(string name, params string[] parameters)
         {
+            // Menu-only header has no model operation; its children retain their command IDs.
+            if (string.Equals(name, NavProIdentity.SmartReviewMenuName, StringComparison.Ordinal)) return 0;
+            if (ReviewToolIds.Contains(name)) return ExecuteReviewTool(name);
             if (string.Equals(name, ContactInfoCommandId, StringComparison.Ordinal))
             {
                 using (var contact = new ContactInfoDialog()) contact.ShowDialog(NavApplication.Gui.MainWindow);
@@ -224,11 +242,15 @@ namespace NavPro.Frontend.Plugins
 
             try
             {
-                var updated = new ClashModelRefreshService(document).RefreshChangedFiles();
+                var refresher = new ClashModelRefreshService(document);
+                string before = refresher.Inspect();
+                var updated = refresher.RefreshChangedFiles();
                 var result = updated
                     ? "Navisworks refreshed one or more loaded files that had changed on disk. Review the updated model and rerun Clash Detective tests if needed, then save the NWF."
                     : "No loaded files needed refreshing. Navisworks did not detect changed files among this document's current references.";
-                MessageBox.Show(NavApplication.Gui.MainWindow, result, "NavPro - Refresh Models", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                CoordinationChangeLog.Record(document, "Refresh Models", document.FileName, before, updated ? "Native files refreshed; clash results potentially outdated" : "No native file changes detected");
+                using (var summary = new Form { Name = "RefreshModelsSummary", Text = "NavPro | Refresh Models summary", Width = 1050, Height = 700, StartPosition = FormStartPosition.CenterParent })
+                { summary.Controls.Add(new TextBox { Dock = DockStyle.Fill, Multiline = true, ReadOnly = true, ScrollBars = ScrollBars.Both, WordWrap = false, Text = result + "\r\n\r\n" + refresher.Inspect(updated) }); NavPro.Frontend.Ui.DialogTheme.Apply(summary); summary.ShowDialog(NavApplication.Gui.MainWindow); }
                 return 0;
             }
             catch (Exception ex)
@@ -301,6 +323,35 @@ namespace NavPro.Frontend.Plugins
             }
         }
 
+        private static int ExecuteReviewTool(string name)
+        {
+            try
+            {
+                if (ReviewWindows.TryGetValue(name, out var current) && !current.IsDisposed)
+                { if (current.WindowState == FormWindowState.Minimized) current.WindowState = FormWindowState.Normal; current.Activate(); return 0; }
+                var document = NavApplication.ActiveDocument;
+                if (document == null || document.Models.Count == 0 || !(document.Clash is DocumentClash))
+                { MessageBox.Show(NavApplication.Gui.MainWindow, "Open a model in Navisworks Manage before using this tool.", "NavPro", MessageBoxButtons.OK, MessageBoxIcon.Information); return 0; }
+                Form window;
+                switch (name)
+                {
+                    case NavProIdentity.SmartClashGrouperName: window = new SmartClashGrouperDialog(document); break;
+                    case NavProIdentity.ChainageClashLocatorName: window = new ChainageClashLocatorDialog(document); break;
+                    case NavProIdentity.AiClashDescriptionName: window = new ClashDescriptionDialog(document); break;
+                    case NavProIdentity.UtilitySeparationCheckerName: window = new SpatialCheckDialog(document, false); break;
+                    case NavProIdentity.MaintenanceClearanceReviewName: window = new SpatialCheckDialog(document, true); break;
+                    case NavProIdentity.CoordinationChangeLogName: window = new CoordinationChangeLogDialog(document); break;
+                    case NavProIdentity.VerticalClearanceCheckerName: window = new VerticalClearanceDialog(document); break;
+                    default: return -1;
+                }
+                ReviewWindows[name] = window;
+                window.Disposed += (sender, args) => { if (ReviewWindows.TryGetValue(name, out var stored) && ReferenceEquals(stored, window)) ReviewWindows.Remove(name); };
+                try { window.Show(NavApplication.Gui.MainWindow); } catch { window.Dispose(); throw; }
+                return 0;
+            }
+            catch (Exception ex)
+            { MessageBox.Show(NavApplication.Gui.MainWindow, ex.Message, "NavPro", MessageBoxButtons.OK, MessageBoxIcon.Error); return -1; }
+        }
         private static int ExecuteClashTolerance()
         {
             if (toleranceDialog != null && !toleranceDialog.IsDisposed)

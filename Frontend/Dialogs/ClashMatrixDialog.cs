@@ -140,10 +140,8 @@ namespace NavPro.Frontend.Dialogs
 
             var modelPanel = MakePanel("LOADED MODELS", models);
             layout.Controls.Add(modelPanel, 0, 2);
-            var pick = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, RowCount = 1, Margin = new Padding(0, 8, 0, 8) };
-            pick.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50)); pick.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50));
-            pick.Controls.Add(MakeSelectionPanel("SELECTION A  ·  DISCIPLINE / SYSTEM SETS", sideAGroup, sideA), 0, 0);
-            pick.Controls.Add(MakeSelectionPanel("SELECTION B  ·  DISCIPLINE / SYSTEM SETS", sideBGroup, sideB), 1, 0);
+            var pick = ResizableLayout.Split(MakeSelectionPanel("SELECTION A  ·  DISCIPLINE / SYSTEM SETS", sideAGroup, sideA),
+                MakeSelectionPanel("SELECTION B  ·  DISCIPLINE / SYSTEM SETS", sideBGroup, sideB), Orientation.Vertical, 0.5, "Selection A and B");
             layout.Controls.Add(pick, 0, 3);
 
             var settings = new FlowLayoutPanel { Dock = DockStyle.Fill, AutoSize = true, WrapContents = true, Padding = new Padding(10, 8, 10, 8), BackColor = Color.White, Margin = new Padding(0, 0, 0, 8) };
@@ -158,9 +156,9 @@ namespace NavPro.Frontend.Dialogs
             foreach (Units unit in Enum.GetValues(typeof(Units))) toleranceUnits.Items.Add(unit);
             toleranceUnits.SelectedItem = document.Units;
             settings.Controls.Add(toleranceUnits);
-            unitsLabel.Text = "Document units: " + document.Units;
+            UpdateUnitsLabel();
             settings.Controls.Add(unitsLabel);
-            settings.Controls.Add(new Label { Text = "Changing tolerance units converts the entered value to preserve the same distance; previews show document units. Verify project standards before creating tests.", AutoSize = true, ForeColor = Color.FromArgb(95, 108, 120), Padding = new Padding(12, 7, 0, 0) });
+            settings.Controls.Add(new Label { Text = "Changing units converts the tolerance to preserve the same distance. The preview follows the selected units; test values are stored in the model document units. Verify project standards before creating tests.", AutoSize = true, ForeColor = Color.FromArgb(95, 108, 120), Padding = new Padding(12, 7, 0, 0) });
             settings.Controls.Add(new Label { Text = "SELECTION GEOMETRY", AutoSize = true, Font = new Font("Segoe UI Semibold", 9F), ForeColor = Color.FromArgb(20, 39, 58), Padding = new Padding(12, 7, 0, 0) });
             foreach (var option in new Control[] { aTriangles, aLines, aPoints, bTriangles, bLines, bPoints, selfIntersect, excludeSelfSelf, compositeObjectClashing }) settings.Controls.Add(option);
             settings.Controls.Add(new Label { Text = "Prefix", AutoSize = true, ForeColor = Color.FromArgb(48, 67, 84), Padding = new Padding(12, 7, 4, 0) });
@@ -183,6 +181,17 @@ namespace NavPro.Frontend.Dialogs
             var footer = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, RowCount = 2, AutoSize = true };
             footer.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100)); footer.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
             footer.Controls.Add(status, 0, 0); footer.Controls.Add(progress, 0, 1); footer.Controls.Add(close, 1, 0); layout.Controls.Add(footer, 0, 7);
+            // Keep the profile outside the flexible regions so it cannot consume the preview's height.
+            layout.Controls.Remove(settings);
+            layout.SetRow(modelPanel, 3); layout.SetRow(pick, 4);
+            layout.RowStyles[2] = new RowStyle(SizeType.Absolute, 140);
+            layout.RowStyles[3] = new RowStyle(SizeType.Percent, 30);
+            layout.RowStyles[4] = new RowStyle(SizeType.Percent, 40);
+            settings.Dock = DockStyle.Top;
+            var profileViewport = new Panel { Dock = DockStyle.Fill, AutoScroll = true, Margin = Padding.Empty };
+            profileViewport.Controls.Add(settings); layout.Controls.Add(profileViewport, 0, 2);
+            var regions = ResizableLayout.Rows(layout, 3, 5, 4, 0.6, "Clash selections and matrix preview");
+            ResizableLayout.Rows((TableLayoutPanel)regions.Panel1.Controls[0], 0, 1, 0, 0.35, "Loaded models and selections");
         }
 
         private static Control MakePanel(string title, Control content)
@@ -281,6 +290,7 @@ namespace NavPro.Frontend.Dialogs
             tolerance.Value = convertedValue;
             previousToleranceUnits = selectedUnits;
             changingToleranceUnits = false;
+            UpdateUnitsLabel();
 
             if (hasPreview && !createdForCurrentPlan) RefreshPreviewToleranceValues();
             else InvalidatePreview();
@@ -294,7 +304,7 @@ namespace NavPro.Frontend.Dialogs
             {
                 plan[i].Tolerance = documentTolerance;
                 if (i < grid.Rows.Count)
-                    grid.Rows[i].Cells[4].Value = documentTolerance.ToString("G6") + " " + document.Units;
+                    grid.Rows[i].Cells[4].Value = FormatTolerancePreview(tolerance.Value, inputUnits);
             }
 
             var selectedType = clashType.SelectedItem as ClashTypeChoice;
@@ -304,6 +314,17 @@ namespace NavPro.Frontend.Dialogs
             int duplicate = plan.Count(p => p.Validation.StartsWith("Duplicate", StringComparison.Ordinal));
             summary.Text = $"Preview: {plan.Count:N0} A/B pairs  ·  {ready:N0} ready  ·  {empty:N0} empty Search Set rows ({warnings:N0} allowed with warning)  ·  {duplicate:N0} duplicate rows. Type: {selectedType?.Label ?? "Unknown"}; tolerance: {tolerance.Value:G6} {inputUnits} (stored as {documentTolerance:G6} {document.Units}).";
             SetControls();
+        }
+
+        private void UpdateUnitsLabel()
+        {
+            var inputUnits = toleranceUnits.SelectedItem is Units selected ? selected : document.Units;
+            unitsLabel.Text = $"Tolerance / preview units: {inputUnits}  ·  Model document units: {document.Units}";
+        }
+
+        private static string FormatTolerancePreview(decimal inputTolerance, Units inputUnits)
+        {
+            return $"{inputTolerance:G6} {inputUnits}";
         }
 
         private async Task PreviewMatrix()
@@ -343,7 +364,7 @@ namespace NavPro.Frontend.Dialogs
                 }
                 foreach (var pair in plan)
                     grid.Rows.Add(pair.A.Path, pair.B.Path, pair.TestName, pair.Type.ToString(),
-                        pair.Tolerance.ToString("G6") + " " + document.Units, GeometryLabel(pair.PrimitiveTypesA, pair.SelfIntersect), GeometryLabel(pair.PrimitiveTypesB, pair.SelfIntersect), pair.CompositeObjectClashing ? "Enabled" : "Disabled", pair.Validation);
+                    FormatTolerancePreview(tolerance.Value, (Units)toleranceUnits.SelectedItem), GeometryLabel(pair.PrimitiveTypesA, pair.SelfIntersect), GeometryLabel(pair.PrimitiveTypesB, pair.SelfIntersect), pair.CompositeObjectClashing ? "Enabled" : "Disabled", pair.Validation);
                 int ready = plan.Count(p => p.Ready);
                 int empty = plan.Count(p => p.A.ItemCount == 0 || p.B.ItemCount == 0);
                 int warnings = plan.Count(p => p.Validation.StartsWith("Warning:", StringComparison.Ordinal));

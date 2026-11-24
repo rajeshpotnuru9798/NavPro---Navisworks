@@ -1,130 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RibbonControl
-    x:Uid="NavProRibbon"
-    xmlns="clr-namespace:Autodesk.Windows;assembly=AdWindows"
-    xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:system="clr-namespace:System;assembly=mscorlib"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="clr-namespace:Autodesk.Navisworks.Gui.Roamer.AIRLook;assembly=navisworks.gui.roamer">
+<RibbonControl x:Uid="NavProRibbon" xmlns="clr-namespace:Autodesk.Windows;assembly=AdWindows" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:system="clr-namespace:System;assembly=mscorlib" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:Autodesk.Navisworks.Gui.Roamer.AIRLook;assembly=navisworks.gui.roamer">
   <RibbonTab x:Uid="NavProRibbonTab" Id="NavProTab" Title="NavPro" KeyTip="NP">
     <RibbonPanel x:Uid="NavProContactPanel">
       <RibbonPanelSource x:Uid="NavProContactPanelSource" KeyTip="CI" Title="Help">
-        <local:NWRibbonButton
-            x:Uid="NavProContactInfoButton"
-            Id="ContactInfo"
-            KeyTip="CI"
-            ShowText="True"
-            Text="Contact Info"
-            Size="Large"
-            Orientation="Vertical"
-            Image="Assets/ContactInfo16.png"
-            LargeImage="Assets/ContactInfo32.png" />
+        <local:NWRibbonButton x:Uid="NavProContactInfoButton" Id="ContactInfo" KeyTip="CI" ShowText="True" Text="Contact Info" Size="Large" Orientation="Vertical" Image="Assets/ContactInfo16.png" LargeImage="Assets/ContactInfo32.png" />
       </RibbonPanelSource>
     </RibbonPanel>
     <RibbonPanel x:Uid="NavProSearchSetsPanel">
       <RibbonPanelSource x:Uid="NavProSearchSetsPanelSource" KeyTip="SS" Title="Search Sets">
-        <local:NWRibbonButton
-            x:Uid="NavProSearchSetCreaterButton"
-            Id="SearchSetCreater"
-            KeyTip="SC"
-            ShowText="True"
-            Text="SetCreator"
-            Size="Large"
-            Orientation="Vertical"
-            Image="Assets/SearchSetCreater16.png"
-            LargeImage="Assets/SearchSetCreater32.png" />
+        <local:NWRibbonButton x:Uid="NavProSearchSetCreaterButton" Id="SearchSetCreater" KeyTip="SC" ShowText="True" Text="SetCreator" Size="Large" Orientation="Vertical" Image="Assets/SearchSetCreater16.png" LargeImage="Assets/SearchSetCreater32.png" />
       </RibbonPanelSource>
     </RibbonPanel>
     <RibbonPanel x:Uid="NavProClashMatrixPanel">
       <RibbonPanelSource x:Uid="NavProClashMatrixPanelSource" KeyTip="CM" Title="Clash Matrix">
-        <local:NWRibbonButton
-            x:Uid="NavProClashMatrixButton"
-            Id="ClashMatrix"
-            KeyTip="CM"
-            ShowText="True"
-            Text="Clash Matrix"
-            Size="Large"
-            Orientation="Vertical"
-            Image="Assets/ClashMatrix16.png"
-            LargeImage="Assets/ClashMatrix32.png" />
+        <local:NWRibbonButton x:Uid="NavProClashMatrixButton" Id="ClashMatrix" KeyTip="CM" ShowText="True" Text="Clash Matrix" Size="Large" Orientation="Vertical" Image="Assets/ClashMatrix16.png" LargeImage="Assets/ClashMatrix32.png" />
       </RibbonPanelSource>
     </RibbonPanel>
     <RibbonPanel x:Uid="NavProClashApproverPanel">
       <RibbonPanelSource x:Uid="NavProClashApproverPanelSource" KeyTip="CA" Title="Clash Review">
-        <local:NWRibbonButton
-            x:Uid="NavProClashRenamerButton"
-            Id="ClashRenamer"
-            KeyTip="RN"
-            ShowText="True"
-            Text="Renamer"
-            Size="Large"
-            Orientation="Vertical"
-            Image="Assets/ClashRenamer16.png"
-            LargeImage="Assets/ClashRenamer32.png" />
-        <local:NWRibbonButton
-            x:Uid="NavProClashToleranceButton"
-            Id="ClashTolerance"
-            KeyTip="TU"
-            ShowText="True"
-            Text="Tolerance Updater"
-            Size="Large"
-            Orientation="Vertical"
-            Image="Assets/ClashTolerance16.png"
-            LargeImage="Assets/ClashTolerance32.png" />
-        <local:NWRibbonButton
-            x:Uid="NavProClashApproverButton"
-            Id="ClashApprover"
-            KeyTip="CA"
-            ShowText="True"
-            Text="Status Updater"
-            Size="Large"
-            Orientation="Vertical"
-            Image="Assets/ClashApprover16.png"
-            LargeImage="Assets/ClashApprover32.png" />
-        <local:NWRibbonButton
-            x:Uid="NavProClashStatusImportButton"
-            Id="ClashStatusImport"
-            KeyTip="IS"
-            ShowText="True"
-            Text="Import Clash Status"
-            Size="Large"
-            Orientation="Vertical"
-            Image="Assets/ClashStatusImport16.png"
-            LargeImage="Assets/ClashStatusImport32.png" />
-        <local:NWRibbonButton
-            x:Uid="NavProClashRefreshModelsButton"
-            Id="ClashRefreshModels"
-            KeyTip="RM"
-            ShowText="True"
-            Text="Refresh Models"
-            Size="Large"
-            Orientation="Vertical"
-            Image="Assets/ClashRefreshModels16.png"
-            LargeImage="Assets/ClashRefreshModels32.png" />
-        <local:NWRibbonButton
-            x:Uid="NavProClashColorizerButton"
-            Id="ClashColorizer"
-            KeyTip="CZ"
-            ShowText="True"
-            Text="Colorizer"
-            Size="Large"
-            Orientation="Vertical"
-            Image="Assets/ClashColorizer16.png"
-            LargeImage="Assets/ClashColorizer32.png" />
+        <local:NWRibbonButton x:Uid="NavProClashRenamerButton" Id="ClashRenamer" KeyTip="RN" ShowText="True" Text="Renamer" Size="Large" Orientation="Vertical" Image="Assets/ClashRenamer16.png" LargeImage="Assets/ClashRenamer32.png" />
+        <local:NWRibbonButton x:Uid="NavProClashToleranceButton" Id="ClashTolerance" KeyTip="TU" ShowText="True" Text="Tolerance Updater" Size="Large" Orientation="Vertical" Image="Assets/ClashTolerance16.png" LargeImage="Assets/ClashTolerance32.png" />
+        <local:NWRibbonButton x:Uid="NavProClashApproverButton" Id="ClashApprover" KeyTip="CA" ShowText="True" Text="Status Updater" Size="Large" Orientation="Vertical" Image="Assets/ClashApprover16.png" LargeImage="Assets/ClashApprover32.png" />
+        <local:NWRibbonButton x:Uid="NavProClashStatusImportButton" Id="ClashStatusImport" KeyTip="IS" ShowText="True" Text="Import Clash Status" Size="Large" Orientation="Vertical" Image="Assets/ClashStatusImport16.png" LargeImage="Assets/ClashStatusImport32.png" />
+        <local:NWRibbonButton x:Uid="NavProClashRefreshModelsButton" Id="ClashRefreshModels" KeyTip="RM" ShowText="True" Text="Refresh Models" Size="Large" Orientation="Vertical" Image="Assets/ClashRefreshModels16.png" LargeImage="Assets/ClashRefreshModels32.png" />
+        <local:NWRibbonButton x:Uid="NavProClashColorizerButton" Id="ClashColorizer" KeyTip="CZ" ShowText="True" Text="Colorizer" Size="Large" Orientation="Vertical" Image="Assets/ClashColorizer16.png" LargeImage="Assets/ClashColorizer32.png" />
+        <local:NWRibbonButton x:Uid="NavProSmartClashGrouperButton" Id="SmartClashGrouper" Text="Smart Clash Grouper" ShowText="True" Image="Assets/SmartClashGrouper16.png" LargeImage="Assets/SmartClashGrouper32.png" Size="Large" Orientation="Vertical" KeyTip="SG" />
+      </RibbonPanelSource>
+    </RibbonPanel>
+    <RibbonPanel x:Uid="NavProSmartReviewPanel">
+      <RibbonPanelSource x:Uid="NavProSmartReviewPanelSource" Title="Smart Review" KeyTip="SR">
+        <local:NWRibbonSplitButton x:Uid="NavProSmartReviewMenu" Id="SmartReviewMenu" Text="Smart Review" ShowText="True" Image="Assets/SmartReviewMenu16.png" LargeImage="Assets/SmartReviewMenu32.png" Size="Large" Orientation="Vertical" KeyTip="SR" IsSplit="False" IsSynchronizedWithCurrentItem="False" ListStyle="List" ListImageSize="Standard">
+          <local:NWRibbonButton x:Uid="NavProChainageClashLocatorButton" Id="ChainageClashLocator" Text="Chainage-Based Clash Locator" ShowText="True" Image="Assets/ChainageClashLocator16.png" LargeImage="Assets/ChainageClashLocator32.png" Size="Standard" Orientation="Horizontal" KeyTip="CL" />
+          <local:NWRibbonButton x:Uid="NavProAiClashDescriptionButton" Id="AiClashDescription" Text="AI Clash Description Assistant" ShowText="True" Image="Assets/AiClashDescription16.png" LargeImage="Assets/AiClashDescription32.png" Size="Standard" Orientation="Horizontal" KeyTip="AI" />
+          <local:NWRibbonButton x:Uid="NavProUtilitySeparationCheckerButton" Id="UtilitySeparationChecker" Text="Utility Separation Checker" ShowText="True" Image="Assets/UtilitySeparationChecker16.png" LargeImage="Assets/UtilitySeparationChecker32.png" Size="Standard" Orientation="Horizontal" KeyTip="US" />
+          <local:NWRibbonButton x:Uid="NavProMaintenanceClearanceReviewButton" Id="MaintenanceClearanceReview" Text="Access and Maintenance Clearance Review" ShowText="True" Image="Assets/MaintenanceClearanceReview16.png" LargeImage="Assets/MaintenanceClearanceReview32.png" Size="Standard" Orientation="Horizontal" KeyTip="MA" />
+          <local:NWRibbonButton x:Uid="NavProCoordinationChangeLogButton" Id="CoordinationChangeLog" Text="Coordination Change Log" ShowText="True" Image="Assets/CoordinationChangeLog16.png" LargeImage="Assets/CoordinationChangeLog32.png" Size="Standard" Orientation="Horizontal" KeyTip="LG" />
+          <local:NWRibbonButton x:Uid="NavProVerticalClearanceCheckerButton" Id="VerticalClearanceChecker" Text="Vertical Clearance Checker" ShowText="True" Image="Assets/VerticalClearanceChecker16.png" LargeImage="Assets/VerticalClearanceChecker32.png" Size="Standard" Orientation="Horizontal" KeyTip="VC" />
+        </local:NWRibbonSplitButton>
       </RibbonPanelSource>
     </RibbonPanel>
     <RibbonPanel x:Uid="NavProExportPanel">
       <RibbonPanelSource x:Uid="NavProExportPanelSource" KeyTip="EX" Title="Export">
-        <local:NWRibbonButton
-            x:Uid="NavProClashDashboardButton"
-            Id="ClashDashboard"
-            KeyTip="CD"
-            ShowText="True"
-            Text="Clash Dashboard"
-            Size="Large"
-            Orientation="Vertical"
-            Image="Assets/ClashDashboard16.png"
-            LargeImage="Assets/ClashDashboard32.png" />
+        <local:NWRibbonButton x:Uid="NavProClashDashboardButton" Id="ClashDashboard" KeyTip="CD" ShowText="True" Text="Clash Dashboard" Size="Large" Orientation="Vertical" Image="Assets/ClashDashboard16.png" LargeImage="Assets/ClashDashboard32.png" />
       </RibbonPanelSource>
     </RibbonPanel>
   </RibbonTab>

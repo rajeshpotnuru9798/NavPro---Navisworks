@@ -6,7 +6,7 @@
     <LangVersion>latest</LangVersion>
     <AssemblyName>NavPro</AssemblyName>
     <RootNamespace>NavPro</RootNamespace>
-    <Version>1.0.27</Version>
+    <Version>1.0.41</Version>
     <NavisworksInstallDir Condition="'$(NavisworksInstallDir)' == '' and '$(Configuration)' == 'Release2026'">$(MSBuildProjectDirectory)\Manage 2026 DLLs</NavisworksInstallDir>
     <NavisworksInstallDir Condition="'$(NavisworksInstallDir)' == '' and '$(Configuration)' == 'Release2025'">$(MSBuildProjectDirectory)\Manage 2025 DLLs</NavisworksInstallDir>
     <NavisworksInstallDir Condition="'$(NavisworksInstallDir)' == ''">C:\Program Files\Autodesk\Navisworks Manage 2024</NavisworksInstallDir>
@@ -17,20 +17,31 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Condition="Exists('$(NavisworksInstallDir)\Autodesk.Navisworks.ComApi.dll')" Include="$(NavisworksInstallDir)\Autodesk.Navisworks.ComApi.dll"><Private>false</Private></Reference>
+    <Reference Condition="Exists('$(NavisworksInstallDir)\Autodesk.Navisworks.ComApi.dll')" Include="$(NavisworksInstallDir)\Autodesk.Navisworks.Interop.ComApi.dll"><Private>false</Private><EmbedInteropTypes>false</EmbedInteropTypes></Reference>
     <Reference Include="$(NavisworksInstallDir)\Autodesk.Navisworks.Api.dll"><Private>false</Private></Reference>
     <Reference Include="$(NavisworksInstallDir)\Autodesk.Navisworks.Clash.dll"><Private>false</Private></Reference>
     <Reference Include="System.IO.Compression" />
     <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml.Linq" />
     <Compile Remove="Tests\**\*.cs" />
     <EmbeddedResource Include="Assets\ContactInfo16.png" LogicalName="NavPro.Assets.ContactInfo16.png" />
     <EmbeddedResource Include="Assets\ContactInfo32.png" LogicalName="NavPro.Assets.ContactInfo32.png" />
     <EmbeddedResource Include="Assets\NavProDashboardLogo.png" LogicalName="NavPro.Assets.NavProDashboardLogo.png" />
     
   </ItemGroup>
+  <PropertyGroup Condition="Exists('$(NavisworksInstallDir)\Autodesk.Navisworks.ComApi.dll')">
+    <DefineConstants>$(DefineConstants);NAVPRO_COM_GEOMETRY</DefineConstants>
+  </PropertyGroup>
   <Target Name="CheckNavisworks" BeforeTargets="ResolveReferences">
     <Error Condition="!Exists('$(NavisworksInstallDir)\Autodesk.Navisworks.Api.dll')" Text="Navisworks API not found. Set NavisworksInstallDir to the folder containing Autodesk.Navisworks.Api.dll and Autodesk.Navisworks.Clash.dll." />
     <Error Condition="!Exists('$(NavisworksInstallDir)\Autodesk.Navisworks.Clash.dll')" Text="Navisworks Clash API not found. Set NavisworksInstallDir to the matching release's API folder." />
     <GetAssemblyIdentity AssemblyFiles="$(NavisworksInstallDir)\Autodesk.Navisworks.Api.dll;$(NavisworksInstallDir)\Autodesk.Navisworks.Clash.dll">
+      <Output TaskParameter="Assemblies" ItemName="_NavisworksApiIdentity" />
+    </GetAssemblyIdentity>
+    <Error Condition="Exists('$(NavisworksInstallDir)\Autodesk.Navisworks.ComApi.dll') and !Exists('$(NavisworksInstallDir)\Autodesk.Navisworks.Interop.ComApi.dll')" Text="The matching COM geometry bridge requires Autodesk.Navisworks.Interop.ComApi.dll in the same API folder." />
+    <GetAssemblyIdentity Condition="Exists('$(NavisworksInstallDir)\Autodesk.Navisworks.ComApi.dll')" AssemblyFiles="$(NavisworksInstallDir)\Autodesk.Navisworks.ComApi.dll">
       <Output TaskParameter="Assemblies" ItemName="_NavisworksApiIdentity" />
     </GetAssemblyIdentity>
     <Error Condition="'%(_NavisworksApiIdentity.Version)' != '$(NavisworksApiAssemblyVersion)'" Text="The selected Navisworks API assemblies do not match NavisworksApiAssemblyVersion=$(NavisworksApiAssemblyVersion)." />

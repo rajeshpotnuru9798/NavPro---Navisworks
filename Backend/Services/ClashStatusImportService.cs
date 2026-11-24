@@ -41,6 +41,8 @@ namespace NavPro.Backend.Services
             var selected = new HashSet<string>((selectedStatuses ?? Enumerable.Empty<string>()).Select(CanonicalStatus).Where(s => s != null), StringComparer.OrdinalIgnoreCase);
             if (selected.Count == 0) throw new InvalidOperationException("Select at least one status to import.");
             var entries = ReadNativeEntries();
+            var matchIndex = IndexEntries(entries);
+            var identityIndex = entries.ToLookup(e => e.Identity, StringComparer.Ordinal);
             var preview = new ClashStatusImportPreview { Report = report };
             preview.SelectedStatuses.AddRange(StandardStatuses.Where(selected.Contains));
             var pending = new Dictionary<string, List<ClashStatusImportPreviewRow>>(StringComparer.Ordinal);
@@ -55,7 +57,7 @@ namespace NavPro.Backend.Services
                 if (string.IsNullOrWhiteSpace(source.TestName) || string.IsNullOrWhiteSpace(source.ClashName) || hasItemA != hasItemB)
                 { row.Disposition = ClashStatusImportDisposition.IncompleteIdentity; row.Details = "Test and clash names are required; item names must be supplied as a pair."; preview.IncompleteIdentityCount++; preview.Rows.Add(row); continue; }
 
-                var matches = FindMatches(source, entries);
+                var matches = FindMatches(source, matchIndex);
                 if (matches.Count == 0) { row.Disposition = ClashStatusImportDisposition.NotFound; row.Details = "No result matched this report row."; preview.NotFoundCount++; preview.Rows.Add(row); continue; }
                 if (matches.Count > 1) { row.Disposition = ClashStatusImportDisposition.Ambiguous; row.Details = matches.Count.ToString("N0", CultureInfo.CurrentCulture) + " results matched; left unchanged."; preview.AmbiguousCount++; preview.Rows.Add(row); continue; }
                 var match = matches[0];
@@ -84,7 +86,7 @@ namespace NavPro.Backend.Services
                 var readyRows = rows.Where(r => r.Disposition == ClashStatusImportDisposition.Ready).ToList();
                 if (readyRows.Count == 0) continue;
                 var first = rows[0];
-                var entry = entries.First(e => string.Equals(e.Identity, pair.Key, StringComparison.Ordinal));
+                var entry = identityIndex[pair.Key].First();
                 preview.Actions.Add(new ClashStatusImportAction { Source = first.Source, TestId = entry.TestId, TargetIdentity = entry.Identity, CurrentStatus = first.CurrentStatus, TargetStatus = distinctStatuses[0] });
                 for (int i = 1; i < readyRows.Count; i++) { readyRows[i].Disposition = ClashStatusImportDisposition.Duplicate; readyRows[i].Details = "Duplicate report row; the clash will be updated once."; preview.DuplicateCount++; }
             }
@@ -99,11 +101,12 @@ namespace NavPro.Backend.Services
             if (preview.Actions.Count == 0) throw new InvalidOperationException("The preview contains no status changes to apply.");
             string actor = string.IsNullOrWhiteSpace(updatedBy) ? Environment.UserName : updatedBy.Trim();
             var entries = ReadNativeEntries();
+            var matchIndex = IndexEntries(entries);
             var resolved = new List<Tuple<ClashStatusImportAction, NativeEntry, ClashResultStatus>>();
             foreach (var action in preview.Actions)
             {
                 var source = action.Source;
-                var candidates = FindMatches(source, entries).Where(e => string.Equals(e.TestId, action.TestId, StringComparison.OrdinalIgnoreCase) && string.Equals(e.Identity, action.TargetIdentity, StringComparison.Ordinal)).ToList();
+                var candidates = FindMatches(source, matchIndex).Where(e => string.Equals(e.TestId, action.TestId, StringComparison.OrdinalIgnoreCase) && string.Equals(e.Identity, action.TargetIdentity, StringComparison.Ordinal)).ToList();
                 if (candidates.Count != 1 || !string.Equals(candidates[0].Result.Status.ToString(), action.CurrentStatus, StringComparison.OrdinalIgnoreCase))
                     throw new InvalidOperationException("The Clash results changed after preview. Refresh the report and preview again; no statuses were changed.");
                 if (!Enum.TryParse(action.TargetStatus, true, out ClashResultStatus target)) throw new InvalidOperationException("The preview contains an unsupported clash status.");
@@ -140,6 +143,8 @@ namespace NavPro.Backend.Services
                 transaction.Commit();
             }
             result.TestsChanged = changedTests.Count;
+            foreach (var item in resolved) CoordinationChangeLog.Record(document, "Import Clash Status", item.Item1.Source.TestName + " / " + item.Item1.Source.ClashName,
+                item.Item1.CurrentStatus, item.Item3.ToString());
             return result;
         }
 
@@ -170,9 +175,18 @@ namespace NavPro.Backend.Services
             return entries;
         }
 
-        private static List<NativeEntry> FindMatches(ClashStatusImportRecord source, List<NativeEntry> entries)
+        private static string MatchKey(string test, string clash)
         {
-            return entries.Where(e => EqualText(e.TestName, source.TestName) && EqualText(e.ClashName, source.ClashName)
+            string normalizedTest = Normalize(test);
+            return normalizedTest.Length.ToString(CultureInfo.InvariantCulture) + ":" + normalizedTest + Normalize(clash);
+        }
+
+        private static ILookup<string, NativeEntry> IndexEntries(IEnumerable<NativeEntry> entries) =>
+            entries.ToLookup(e => MatchKey(e.TestName, e.ClashName), StringComparer.OrdinalIgnoreCase);
+
+        private static List<NativeEntry> FindMatches(ClashStatusImportRecord source, ILookup<string, NativeEntry> entries)
+        {
+            return entries[MatchKey(source.TestName, source.ClashName)].Where(e => EqualText(e.TestName, source.TestName) && EqualText(e.ClashName, source.ClashName)
                 && (string.IsNullOrWhiteSpace(source.ItemA) || EqualText(e.ItemA, source.ItemA))
                 && (string.IsNullOrWhiteSpace(source.ItemB) || EqualText(e.ItemB, source.ItemB))
                 && (string.IsNullOrWhiteSpace(source.ModelA) || EqualFile(e.ModelA, source.ModelA))

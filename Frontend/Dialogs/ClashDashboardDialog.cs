@@ -15,19 +15,21 @@ namespace NavPro.Frontend.Dialogs
         private readonly ClashDashboardExportService service;
         private readonly Button export = new Button { Text = "Export Clash Dashboard", AutoSize = true };
         private readonly Button close = new Button { Text = "Close", AutoSize = true };
-        private readonly Label status = new Label { AutoSize = true, Dock = DockStyle.Fill, ForeColor = Color.FromArgb(35, 75, 96) };
+        private readonly Label status = new Label { AutoSize = false, Dock = DockStyle.Fill, AutoEllipsis = true, ForeColor = Color.FromArgb(35, 75, 96) };
         private readonly ProgressBar progress = new ProgressBar { Dock = DockStyle.Fill, Height = 9, Style = ProgressBarStyle.Marquee, MarqueeAnimationSpeed = 25 };
+        private bool exporting;
 
         public ClashDashboardDialog(Document document)
         {
             this.document = document ?? throw new ArgumentNullException(nameof(document));
             service = new ClashDashboardExportService(document);
             Text = "NavPro | Clash Dashboard"; Font = new Font("Segoe UI", 9.5F); AutoScaleMode = AutoScaleMode.Dpi;
-            Size = new Size(760, 250); MinimumSize = new Size(620, 230); StartPosition = FormStartPosition.CenterParent;
+            Size = new Size(900, 420); MinimumSize = new Size(720, 360); StartPosition = FormStartPosition.CenterParent;
             BackColor = Color.FromArgb(242, 245, 248); FormBorderStyle = FormBorderStyle.Sizable; ShowInTaskbar = false;
             var layout = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 5, Padding = new Padding(14) };
-            layout.RowStyles.Add(new RowStyle(SizeType.AutoSize)); layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-            layout.RowStyles.Add(new RowStyle(SizeType.AutoSize)); layout.RowStyles.Add(new RowStyle(SizeType.AutoSize)); layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 82)); layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100)); layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 12)); layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             var header = new Panel { Dock = DockStyle.Top, Height = 76, BackColor = Color.FromArgb(35, 30, 220), Padding = new Padding(16) };
             header.Controls.Add(new Label { Text = "NavPro", AutoSize = true, ForeColor = Color.White, Font = new Font("Segoe UI Semibold", 19F), Location = new Point(14, 9) });
             header.Controls.Add(new Label { Text = "Clash Dashboard · Export", AutoSize = true, ForeColor = Color.White, Location = new Point(17, 47) });
@@ -41,6 +43,7 @@ namespace NavPro.Frontend.Dialogs
             Controls.Add(layout);
             DialogTheme.Apply(this, export);
             export.Click += (s, e) => ExportDashboard(); close.Click += (s, e) => Close();
+            FormClosing += (s, e) => { if (exporting) e.Cancel = true; };
             progress.Visible = false;
         }
 
@@ -65,17 +68,17 @@ namespace NavPro.Frontend.Dialogs
                     if (existing.Count > 0 && MessageBox.Show(this, "These companion files already exist and will be replaced:\r\n" + string.Join("\r\n", existing) + "\r\n\r\nContinue?", "Overwrite companion reports", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes) return;
                     try
                     {
-                        export.Enabled = false; progress.Visible = true;
+                        exporting = true; export.Enabled = close.Enabled = false; progress.Visible = true;
                         status.Text = "Collecting saved Clash Detective tests and results. Optional viewpoint images render synchronously and may take time.";
                         status.Refresh(); progress.Refresh();
-                        int count = service.Export(save.FileName, settings.Options);
+                        int count = service.Export(save.FileName, settings.Options, message => { status.Text = message; status.Refresh(); });
                         var outputs = new List<string> { "HTML dashboard: " + save.FileName };
                         if (settings.Options.IncludeExcel) outputs.Add("Excel workbook: " + System.IO.Path.ChangeExtension(save.FileName, ".xlsx"));
                         if (settings.Options.IncludeTabularHtml) outputs.Add("Tabular HTML: " + System.IO.Path.ChangeExtension(save.FileName, null) + "_tabular.html");
                         if (settings.Options.IncludeXml) outputs.Add("XML report: " + System.IO.Path.ChangeExtension(save.FileName, ".xml"));
-                        status.Text = "Clash Dashboard exported with " + count.ToString("N0") + " clash results and all saved test definitions. " + string.Join(" · ", outputs);
+                        status.Text = "Clash Dashboard exported with " + count.ToString("N0") + " clash results. " + service.ImageSummary + " " + string.Join(" · ", outputs);
                         var summary = count == 0 ? "The dashboard was created, but no individual clash results matched the selected statuses." : "Exported an interactive dashboard with " + count.ToString("N0") + " results. Use Add Files to combine NavPro dashboards; Print PDF opens the browser print dialog.";
-                        MessageBox.Show(this, summary + "\r\n\r\n" + string.Join("\r\n", outputs), "Clash Dashboard complete", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBox.Show(this, summary + "\r\n" + service.ImageSummary + "\r\n\r\n" + string.Join("\r\n", outputs), "Clash Dashboard complete", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(save.FileName) { UseShellExecute = true }); } catch { }
                     }
                     catch (Exception ex)
@@ -83,7 +86,7 @@ namespace NavPro.Frontend.Dialogs
                         status.Text = "Clash Dashboard export failed: " + ex.Message;
                         MessageBox.Show(this, ex.Message, "Clash Dashboard export failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
-                    finally { export.Enabled = true; progress.Visible = false; }
+                    finally { exporting = false; export.Enabled = close.Enabled = true; progress.Visible = false; }
                 }
             }
         }

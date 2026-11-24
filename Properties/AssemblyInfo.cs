@@ -5,5 +5,6 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCompany("NavPro")]
 [assembly: AssemblyProduct("NavPro")]
 [assembly: AssemblyVersion("1.0.1.0")]
-[assembly: AssemblyFileVersion("1.0.1.0")]
+[assembly: AssemblyFileVersion("1.0.41.0")]
 [assembly: ComVisible(false)]
+

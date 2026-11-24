@@ -32,6 +32,7 @@ namespace NavPro.Frontend.Ui
         public static void Apply(Form form, params Button[] primaryActions)
         {
             if (form == null) return;
+            WindowPreferences.Attach(form);
             form.BackColor = Canvas;
             form.ForeColor = Ink;
             // Preserve point sizes, emphasis and event/keyboard wiring; replace family only.

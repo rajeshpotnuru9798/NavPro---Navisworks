@@ -4,6 +4,14 @@ NavPro brings clash coordination and model review tools into Autodesk Navisworks
 
 ## Feature gallery
 
+### Installed ribbon — NavPro 1.0.41
+
+![NavPro ribbon](NavPro-Ribbon-1.0.41.png)
+
+![Smart Review dropdown](NavPro-SmartReview-1.0.41.png)
+
+Captured in Navisworks Manage 2024 on 24 November 2026. Cropped to show only ribbon controls and menu entries; no project geometry or title-bar project names are included. All approved tool icons and six Smart Review entries are visible. This is visual registration evidence, separate from geometry and model-operation acceptance.
+
 | Workflow | NavPro tools |
 |---|---|
 | Clash review | Dashboard, Matrix Designer, Approver, Renamer |

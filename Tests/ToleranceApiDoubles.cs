@@ -20,6 +20,7 @@ namespace Autodesk.Navisworks.Api
     public static class Application { public static Document ActiveDocument { get; set; } }
     public sealed class Document
     {
+        public string FileName { get; set; }
         public Units Units { get; set; } = Units.Meters;
         public object Clash { get; set; } = new Clash.DocumentClash();
         public int Transactions;

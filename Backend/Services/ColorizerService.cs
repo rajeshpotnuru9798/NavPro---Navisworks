@@ -56,9 +56,11 @@ namespace NavPro.Backend.Services
                 var target = ResolveTarget(row);
                 var items = ReadItems(target);
                 if (items.Count == 0) continue;
-                document.Models.OverridePermanentColor(items,
-                    Autodesk.Navisworks.Api.Color.FromByteRGB(row.Red, row.Green, row.Blue));
+                try { document.Models.OverridePermanentColor(items,
+                    Autodesk.Navisworks.Api.Color.FromByteRGB(row.Red, row.Green, row.Blue)); }
+                catch (Exception ex) { CoordinationChangeLog.Record(document, "Colorizer", target.Name, colored + " target(s) completed before this target", ex.Message + "; inspect native appearance", "Incomplete / possible partial changes"); throw; }
                 colored++;
+                CoordinationChangeLog.Record(document, "Colorizer", target.Name, "Previous appearance not captured", "Permanent RGB override " + row.Red + "," + row.Green + "," + row.Blue);
             }
             CheckHost();
             return colored;

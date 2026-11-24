@@ -63,6 +63,9 @@ namespace NavPro.Backend.Services
                 transaction.Commit();
             }
             Verify(changed);
+            foreach (var item in changed) CoordinationChangeLog.Record(document, "Tolerance Updater", item.Original.Name,
+                item.Original.Type + "; " + item.Original.Tolerance + " " + item.Original.DocumentUnits + "; composite " + item.Original.CompositeObjectClashing,
+                item.Type + "; " + item.Tolerance + " " + item.Original.DocumentUnits + "; composite " + item.CompositeObjectClashing);
             return changed.Count;
         }
 

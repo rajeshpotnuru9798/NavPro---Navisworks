@@ -14,6 +14,31 @@ namespace NavPro.Backend.Services
         private readonly Document document;
         private readonly ModelInspectionService guard;
         public SearchSetCreationService(Document document, ModelInspectionService guard) { this.document = document; this.guard = guard; }
+        public string PreviewMatches(ValueGroup value)
+        {
+            guard.Check();
+            using (var search = SearchCriteriaFactory.Create(value))
+            using (var found = search.FindAll(document, false))
+            {
+                document.CurrentSelection.CopyFrom(found);
+                var matches = new HashSet<ModelItem>(found);
+                var overlaps = new List<string>(); int checkedSets = 0;
+                foreach (var set in SavedSets(document.SelectionSets.Value))
+                {
+                    if (++checkedSets > 50) { overlaps.Add("Only the first 50 saved sets were compared; remaining sets need review."); break; }
+                    using (var selected = SetMembers(set))
+                        if (selected.Any(item => matches.Contains(item))) overlaps.Add(set.DisplayName);
+                }
+                return found.Count + " directly matching hierarchy items selected" + (found.Count == 0 ? " — EMPTY" : "") + ".\r\nDirect membership overlaps: " + (overlaps.Count == 0 ? "none in checked sets" : string.Join("; ", overlaps)) + ".\r\nAncestor/descendant geometric overlap is not inferred.";
+            }
+        }
+        private ModelItemCollection SetMembers(SelectionSet set)
+        {
+            if (!set.HasSearch) return set.GetSelectedItems(document);
+            using (var search = new Search(set.Search)) return search.FindAll(document, false);
+        }
+        private static IEnumerable<SelectionSet> SavedSets(IEnumerable<SavedItem> items)
+        { foreach (var item in items) { if (item is SelectionSet set) yield return set; else if (item is GroupItem group) foreach (var child in SavedSets(group.Children)) yield return child; } }
         public HashSet<string> ExistingNames()
         {
             guard.Check();

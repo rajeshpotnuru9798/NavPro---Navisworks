@@ -53,6 +53,9 @@ namespace NavPro.Frontend.Dialogs
         private bool quickOperation;
         private bool updatingSelectors;
         private readonly ProgressReporter reporter = new ProgressReporter();
+        private readonly TextBox namingPattern = new TextBox { Text = "{value}", Width = 210, AccessibleName = "Set naming pattern" };
+        private readonly ComboBox presets = new ComboBox { Width = 170, AccessibleName = "Set property and naming preset" };
+        private Dictionary<string, string[]> savedPresets = new Dictionary<string, string[]>();
 
         private sealed class ValueChoice
         {
@@ -124,6 +127,16 @@ namespace NavPro.Frontend.Dialogs
             optionALayout.Controls.Add(new Label { AutoSize = true, Dock = DockStyle.Fill, ForeColor = Color.FromArgb(75, 91, 105), Padding = new Padding(0, 6, 0, 8), Text = "Counts include directly matching hierarchy items. Missing/blank values are excluded. Existing saved names are skipped. Save the NWF/NWD in Navisworks to retain new sets." }, 0, 5);
             var actions = new FlowLayoutPanel { Dock = DockStyle.Fill, AutoSize = true, WrapContents = true, Padding = new Padding(0, 8, 0, 0) };
             actions.Controls.AddRange(new Control[] { discover, preview, create });
+            actions.Controls.Add(new Label { Text = "Name: {value}, {n}", AutoSize = true }); actions.Controls.Add(namingPattern); actions.Controls.Add(presets);
+            try { savedPresets = ReviewPreferences.Read<Dictionary<string, string[]>>("set-presets"); } catch (Exception ex) { status.Text = ex.Message; }
+            presets.Items.AddRange(savedPresets.Keys.OrderBy(v => v).Cast<object>().ToArray());
+            var savePreset = new Button { Text = "Save preset", AutoSize = true }; actions.Controls.Add(savePreset);
+            savePreset.Click += (s, e) => { try { if (!(property.SelectedItem is PropertyOption p) || string.IsNullOrWhiteSpace(presets.Text)) throw new InvalidOperationException("Scan/select a property and enter a preset name."); savedPresets[presets.Text.Trim()] = new[] { p.Key.Category, p.Key.Property, namingPattern.Text }; ReviewPreferences.Write("set-presets", savedPresets); if (!presets.Items.Contains(presets.Text.Trim())) presets.Items.Add(presets.Text.Trim()); status.Text = "Property/naming preset saved."; } catch (Exception ex) { status.Text = ex.Message; } };
+            var loadPreset = new Button { Text = "Load preset", AutoSize = true }; actions.Controls.Add(loadPreset);
+            loadPreset.Click += (s, e) => { if (busy) return; if (!savedPresets.TryGetValue(presets.Text, out var saved) || saved.Length != 3) { status.Text = "Choose a saved preset."; return; } var p = discoveredProperties.FirstOrDefault(v => v.Key.Category == saved[0] && v.Key.Property == saved[1]); if (p == null) { status.Text = "Scan properties first; the preset property must exist in this model."; return; } category.SelectedItem = category.Items.Cast<CategoryOption>().First(c => c.InternalName == saved[0]); property.SelectedItem = p; namingPattern.Text = saved[2]; status.Text = "Preset loaded. Preview required."; };
+            namingPattern.TextChanged += (s, e) => { if (!busy) RefreshNames(); };
+            var showMatches = new Button { Text = "Select matches / check overlaps", AutoSize = true }; actions.Controls.Add(showMatches);
+            showMatches.Click += (s, e) => { if (busy || result == null || grid.CurrentRow == null) return; try { int i = (int)grid.CurrentRow.Tag; status.Text = creator.PreviewMatches(result.Values[i]); MessageBox.Show(this, status.Text, "Matching objects and saved set overlaps"); } catch (Exception ex) { status.Text = "Match preview failed: " + ex.Message; } };
             optionALayout.Controls.Add(actions, 0, 6);
             optionA.Controls.Add(optionALayout);
 
@@ -131,7 +144,7 @@ namespace NavPro.Frontend.Dialogs
             for (int i = 0; i < 6; i++) optionBLayout.RowStyles.Add(new RowStyle(i == 4 ? SizeType.Percent : SizeType.AutoSize, i == 4 ? 100 : 0));
             optionBLayout.Controls.Add(new Label { Text = "Model file-name setup", Font = new Font("Segoe UI Semibold", 16F), ForeColor = Color.FromArgb(25, 42, 59), AutoSize = true, Margin = new Padding(0, 0, 0, 8) }, 0, 0);
             optionBLayout.Controls.Add(new Label { Text = "All loaded models are selected by default. Uncheck any to exclude it. Preview Category: Item, Property: File Name, then create one search set per distinct value using that value as the set name.", AutoSize = true, MaximumSize = new Size(900, 0), ForeColor = Color.FromArgb(52, 70, 86), Margin = new Padding(0, 0, 0, 10) }, 0, 1);
-            var modelRow = new TableLayoutPanel { AutoSize = true, Dock = DockStyle.Top, ColumnCount = 2, RowCount = 1, Margin = new Padding(0, 0, 0, 10) };
+            var modelRow = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, RowCount = 1, Margin = new Padding(0, 0, 0, 10) };
             modelRow.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize)); modelRow.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
             modelRow.Controls.Add(new Label { Text = "MODELS", AutoSize = true, Anchor = AnchorStyles.Top | AnchorStyles.Left, ForeColor = Color.FromArgb(25, 42, 59), Font = new Font("Segoe UI Semibold", 8.5F), Margin = new Padding(0, 6, 12, 0) }, 0, 0);
             modelRow.Controls.Add(oneClickModels, 1, 0);
@@ -153,6 +166,8 @@ namespace NavPro.Frontend.Dialogs
             var oneClickActions = new FlowLayoutPanel { Dock = DockStyle.Fill, AutoSize = true, WrapContents = true, Padding = new Padding(0, 10, 0, 0) };
             oneClickActions.Controls.Add(oneClickPreview); oneClickActions.Controls.Add(oneClickCreate);
             optionBLayout.Controls.Add(oneClickActions, 0, 6);
+            oneClickModels.Dock = DockStyle.Fill; oneClickModels.IntegralHeight = false; oneClickModels.HorizontalScrollbar = true;
+            ResizableLayout.Rows(optionBLayout, 2, 5, 2, 0.4, "Loaded models and set preview");
             optionB.Controls.Add(optionBLayout);
             layout.Controls.Add(tabs, 0, 2);
             layout.Controls.Add(new Label { AutoSize = true, Dock = DockStyle.Fill, ForeColor = Color.FromArgb(75, 91, 105), Padding = new Padding(0, 8, 0, 4), Text = "Progress ETA is approximate and stage-local; synchronous native searches may pause updates. New sets are added to a folder and are not saved to the NWF/NWD until you save in Navisworks." }, 0, 3);
@@ -347,6 +362,9 @@ namespace NavPro.Frontend.Dialogs
                 // from the model filename while preserving the original typed criterion.
                 var modelNumbers = result.Values.Select(v => System.IO.Path.GetFileName(v.Display)).ToList();
                 plan = NamingPolicy.Plan(modelNumbers, existing);
+                string pattern = namingPattern.Text;
+                if (string.IsNullOrWhiteSpace(pattern) || pattern.Replace("{value}", "").Replace("{n}", "").IndexOfAny(new[] { '{', '}' }) >= 0) throw new InvalidOperationException("Use a naming pattern with {value} and/or {n}; unknown tokens are not allowed.");
+                for (int i = 0; i < plan.Count; i++) plan[i].Name = System.Text.RegularExpressions.Regex.Replace(pattern, @"\{value\}|\{n\}", match => match.Value == "{value}" ? modelNumbers[i] : (i + 1).ToString("D3"));
                 for (int i = 0; i < result.Values.Count; i++)
                     if (renamedSets.TryGetValue(RenameKey(result.Values[i]), out var name)) plan[i].Name = name;
                 NamingPolicy.Validate(plan, existing);

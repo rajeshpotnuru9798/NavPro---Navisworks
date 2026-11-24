@@ -131,7 +131,7 @@ namespace NavPro.Backend.Services
             return pairs;
         }
 
-        public int CreateTests(IList<ClashMatrixPair> pairs)
+        public int CreateTests(IList<ClashMatrixPair> pairs, bool recordChangeLog = true)
         {
             CheckHost();
             if (pairs == null) throw new ArgumentNullException(nameof(pairs));
@@ -180,6 +180,7 @@ namespace NavPro.Backend.Services
             var missingNames = ready.Where(pair => !savedNames.Contains(pair.TestName)).Select(pair => pair.TestName).ToList();
             if (missingNames.Count > 0)
                 throw new InvalidOperationException("Navisworks did not retain " + missingNames.Count + " of the " + ready.Count + " requested Clash Detective tests: " + string.Join(", ", missingNames) + ". Inspect the Tests tree before retrying.");
+            if (recordChangeLog) foreach (var pair in ready) CoordinationChangeLog.Record(document, "Clash Matrix", pair.TestName, "No test", pair.Type + "; tolerance " + pair.Tolerance + " " + document.Units + "; A: " + pair.A.Path + "; B: " + pair.B.Path);
             return ready.Count;
         }
 

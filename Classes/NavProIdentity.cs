@@ -28,6 +28,22 @@ namespace NavPro.Classes
         public const string ClashDashboardDisplayName = "Clash Dashboard";
         public const string ContactInfoName = "ContactInfo";
         public const string ContactInfoDisplayName = "Contact Info";
+        public const string SmartClashGrouperName = "SmartClashGrouper";
+        public const string SmartReviewMenuName = "SmartReviewMenu";
+        public const string SmartReviewMenuDisplayName = "Smart Review";
+        public const string SmartClashGrouperDisplayName = "Smart Clash Grouper";
+        public const string ChainageClashLocatorName = "ChainageClashLocator";
+        public const string ChainageClashLocatorDisplayName = "Chainage-Based Clash Locator";
+        public const string AiClashDescriptionName = "AiClashDescription";
+        public const string AiClashDescriptionDisplayName = "AI Clash Description Assistant";
+        public const string UtilitySeparationCheckerName = "UtilitySeparationChecker";
+        public const string UtilitySeparationCheckerDisplayName = "Utility Separation Checker";
+        public const string MaintenanceClearanceReviewName = "MaintenanceClearanceReview";
+        public const string MaintenanceClearanceReviewDisplayName = "Access and Maintenance Clearance Review";
+        public const string CoordinationChangeLogName = "CoordinationChangeLog";
+        public const string VerticalClearanceCheckerName = "VerticalClearanceChecker";
+        public const string VerticalClearanceCheckerDisplayName = "Vertical Clearance Checker";
+        public const string CoordinationChangeLogDisplayName = "Coordination Change Log";
         public const string ContactEmail = "Potnuru.Rajesh@jacobs.com";
         public const string DeveloperId = "9bfa9acd-23b0-4d16-bf4c-a77fc1248c4a";
     }

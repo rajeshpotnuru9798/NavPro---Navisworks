@@ -1,0 +1,110 @@
+[
+    {
+        "Key":  "ContactInfo",
+        "Tool":  "Contact Info",
+        "Panel":  "Help",
+        "Meaning":  "Support card + information badge"
+    },
+    {
+        "Key":  "SearchSetCreater",
+        "Tool":  "SetCreator",
+        "Panel":  "Search Sets",
+        "Meaning":  "Organized model layers + add"
+    },
+    {
+        "Key":  "ClashMatrix",
+        "Tool":  "Clash Matrix",
+        "Panel":  "Clash Matrix",
+        "Meaning":  "Discipline grid + conflict cell"
+    },
+    {
+        "Key":  "ClashRenamer",
+        "Tool":  "Renamer",
+        "Panel":  "Clash Review",
+        "Meaning":  "Name tag + editing pencil"
+    },
+    {
+        "Key":  "ClashTolerance",
+        "Tool":  "Tolerance Updater",
+        "Panel":  "Clash Review",
+        "Meaning":  "Two boundaries + adjustable gap"
+    },
+    {
+        "Key":  "ClashApprover",
+        "Tool":  "Status Updater",
+        "Panel":  "Clash Review",
+        "Meaning":  "Review checklist + approval"
+    },
+    {
+        "Key":  "ClashStatusImport",
+        "Tool":  "Import Clash Status",
+        "Panel":  "Clash Review",
+        "Meaning":  "Report sheet + incoming arrow"
+    },
+    {
+        "Key":  "ClashRefreshModels",
+        "Tool":  "Refresh Models",
+        "Panel":  "Clash Review",
+        "Meaning":  "Federated model + reload loop"
+    },
+    {
+        "Key":  "ClashColorizer",
+        "Tool":  "Colorizer",
+        "Panel":  "Clash Review",
+        "Meaning":  "Discipline colors + paint brush"
+    },
+    {
+        "Key":  "SmartClashGrouper",
+        "Tool":  "Smart Clash Grouper",
+        "Panel":  "Clash Review",
+        "Meaning":  "Related clash nodes in one group"
+    },
+    {
+        "Key":  "ChainageClashLocator",
+        "Tool":  "Chainage-Based Clash Locator",
+        "Panel":  "Smart Review",
+        "Meaning":  "Alignment station ticks + location"
+    },
+    {
+        "Key":  "AiClashDescription",
+        "Tool":  "AI Clash Description Assistant",
+        "Panel":  "Smart Review",
+        "Meaning":  "Editable description + drafting spark"
+    },
+    {
+        "Key":  "UtilitySeparationChecker",
+        "Tool":  "Utility Separation Checker",
+        "Panel":  "Smart Review",
+        "Meaning":  "Separated utilities + gap dimension"
+    },
+    {
+        "Key":  "MaintenanceClearanceReview",
+        "Tool":  "Access and Maintenance Clearance Review",
+        "Panel":  "Smart Review",
+        "Meaning":  "Equipment + protected service envelope"
+    },
+    {
+        "Key":  "CoordinationChangeLog",
+        "Tool":  "Coordination Change Log",
+        "Panel":  "Smart Review",
+        "Meaning":  "Revision timeline + recorded changes"
+    },
+    {
+        "Key":  "VerticalClearanceChecker",
+        "Tool":  "Vertical Clearance Checker",
+        "Panel":  "Smart Review",
+        "Meaning":  "Surface to pipe crown: vertical only"
+    },
+    {
+        "Key":  "ClashDashboard",
+        "Tool":  "Clash Dashboard",
+        "Panel":  "Export",
+        "Meaning":  "Clash register + reporting charts"
+    },
+    {
+        "Key":  "SmartReviewMenu",
+        "Tool":  "Smart Review dropdown",
+        "Panel":  "Menu header",
+        "Meaning":  "Review model + inspection lens"
+    }
+]
